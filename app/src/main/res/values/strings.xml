@@ -1,10 +1,16 @@
 <resources>
     <string name="app_name">geoquiz</string>
 
-    <string name="texto_pregunta">Camberra es la capital de Australia</string>
+    <string name="pregunta_australia">Camberra es la capital de Australia</string>
+    <string name="pregunta_oceanos">El oceano Pacífico es más grande que el oceano Atlántico</string>
+    <string name="pregunta_medio_oriente">El canal de Suez conecta el mar Rojo con el oceano ïndico</string>
+    <string name="pregunta_africa">La fuente del río Nilo está en Egipto</string>
+    <string name="prgunta_america">El río Amazonas es el más largo de América"</string>
+    <string name="pregunta_asia">El lago Baikal es la fuente de agua dulce más antigua y profunda</string>
     <string name = "boton_verdadero">Verdadero</string>
     <string name="botn_falso">Falso</string>
 
     <string name="toast_correcto">Bien</string>
     <string name="toast_incorrecto">Mal</string>
+    <string name="boton_siguiente">Siguiente</string>
 </resources>
