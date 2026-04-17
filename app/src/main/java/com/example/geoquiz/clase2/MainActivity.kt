@@ -43,8 +43,10 @@ class MainActivity : AppCompatActivity() {
         binding.btnNext.setOnClickListener {
             indiceActual+=1
             actulizarPregunta()
-
-
+        }
+        binding.btnBack.setOnClickListener {
+            indiceActual-=1
+            actulizarPregunta()
         }
     }
     private fun actulizarPregunta(){
@@ -54,9 +56,28 @@ class MainActivity : AppCompatActivity() {
 
     private fun verificarRespuesta(rptaUsuario: Boolean){
         var rptaCorrecta=preguntas[indiceActual].rpta
-        var msgRpta:Int=0
-        msgRpta=if(rptaUsuario==rptaCorrecta) R.string.toast_correcto else R.string.toast_incorrecto
-        Toast.makeText(this, msgRpta, Toast.LENGTH_LONG).show()
 
+        val esCorrecto = (rptaUsuario == rptaCorrecta)
+        val msgRpta = if(esCorrecto) R.string.toast_correcto else R.string.toast_incorrecto
+        val colorFondo = if(esCorrecto) "#4CAF50" else "#F44336"
+
+        val vistaPersonalizada = android.widget.TextView(this)
+        vistaPersonalizada.text = getString(msgRpta)
+
+        val fondoCurvo = android.graphics.drawable.GradientDrawable()
+        fondoCurvo.setColor(Color.parseColor(colorFondo))
+        fondoCurvo.cornerRadius = 20f
+        vistaPersonalizada.background = fondoCurvo
+
+        vistaPersonalizada.setTextColor(Color.WHITE)
+        vistaPersonalizada.setPadding(50, 30, 50, 30)
+        vistaPersonalizada.textSize = 16f
+
+        val toast = Toast(this)
+        toast.duration = Toast.LENGTH_SHORT
+        toast.setGravity(Gravity.TOP, 0, 150)
+        toast.view = vistaPersonalizada
+
+        toast.show()
     }
 }

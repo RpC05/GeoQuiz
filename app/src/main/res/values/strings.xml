@@ -13,4 +13,5 @@
     <string name="toast_correcto">Bien</string>
     <string name="toast_incorrecto">Mal</string>
     <string name="boton_siguiente">Siguiente</string>
+    <string name="boton_anterior">Anterior</string>
 </resources>

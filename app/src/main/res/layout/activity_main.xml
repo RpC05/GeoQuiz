@@ -34,14 +34,33 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
-        <Button
-            android:id="@+id/btn_next"
+
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/boton_siguiente"
-            app:icon="@drawable/arrow_right"
-            app:iconGravity="end"/>
+            android:orientation="horizontal">
+            <Button
+                android:id="@+id/btn_back"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/boton_anterior"
+                app:icon="@drawable/arrow_left"
+                app:iconGravity="start"/>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <Button
+                android:id="@+id/btn_next"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/boton_siguiente"
+                app:icon="@drawable/arrow_right"
+                app:iconGravity="end"/>
+        </LinearLayout>
     </LinearLayout>
 
 </LinearLayout>
