@@ -9,43 +9,36 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.geoquiz.R
 import com.example.geoquiz.databinding.ActivityMainBinding
-import com.example.geoquiz.pregunta.Pregunta
+import androidx.activity.viewModels
+import com.example.geoquiz.clase24042026.PreguntaViewModel
+import android.content.Intent
+import com.example.geoquiz.clase24042026.TrampaActivity
+import androidx.activity.result.contract.ActivityResultContracts
+import android.app.Activity
+import com.example.geoquiz.clase24042026.EXTRA_RPTA_MOSTRADA
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
+    private val preguntaViewModel: PreguntaViewModel by viewModels() //clase 24-04-2026
 
-    val preguntas = listOf<Pregunta>(
-        Pregunta(R.string.pregunta_australia, true),
-        Pregunta(R.string.pregunta_oceanos, true),
-        Pregunta(R.string.pregunta_medio_oriente, true),
-        Pregunta(R.string.pregunta_africa, true),
-        Pregunta(R.string.prgunta_america, true),
-        Pregunta(R.string.pregunta_asia, true)
-    )
-
-    var indiceActual: Int = 0
-    var puntaje: Int = 0 // Variable para contar las correctas
-    val preguntasContestadas = BooleanArray(6) { false } // Arreglo para saber cuáles ya se respondieron
+    private val iniciadorTrampa = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { resultado ->
+        if (resultado.resultCode == Activity.RESULT_OK) {
+            preguntaViewModel.hizoTrampa = resultado.data?.getBooleanExtra(EXTRA_RPTA_MOSTRADA, false) ?: false
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Log.d(TAG, "Se obtuvo un PreguntaViewModel: $preguntaViewModel")
         Log.d(TAG, "onCreate() fue llamado")
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Recuperar datos si se gira la pantalla
-        if (savedInstanceState != null) {
-            indiceActual = savedInstanceState.getInt(KEY_INDEX_IA, 0)
-            puntaje = savedInstanceState.getInt(KEY_PUNTAJE, 0)
-            val guardadas = savedInstanceState.getBooleanArray(KEY_CONTESTADAS)
-            if (guardadas != null) {
-                guardadas.copyInto(preguntasContestadas)
-            }
-        }
-
-        actulizarPregunta() // Se llama aquí para cargar la primera pregunta con sus bloqueos
+        actulizarPregunta()
 
         binding.trueButton.setOnClickListener {
             verificarRespuesta(true)
@@ -56,44 +49,62 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.btnNext.setOnClickListener {
-            indiceActual = (indiceActual + 1) % preguntas.size
+            // AHORA USAMOS LA FUNCIÓN DEL VIEWMODEL
+            preguntaViewModel.moverAlSiguiente()
             actulizarPregunta()
         }
+
         binding.btnBack.setOnClickListener {
-            indiceActual = if (indiceActual == 0) preguntas.size - 1 else indiceActual - 1
+            // AHORA USAMOS LA FUNCIÓN EXTRA DEL VIEWMODEL
+            preguntaViewModel.moverAlAnterior()
             actulizarPregunta()
+        }
+
+        binding.btnTrampa.setOnClickListener {
+            val rptaVerdadera = preguntaViewModel.respuestaActual
+            val intento = TrampaActivity.nuevoIntent(this, rptaVerdadera)
+            iniciadorTrampa.launch(intento)
         }
     }
 
     private fun actulizarPregunta() {
-        val pregunta: Int = preguntas[indiceActual].IdTextoRpta
+        // AHORA USAMOS textoActual DEL VIEWMODEL
+        val pregunta: Int = preguntaViewModel.textoActual
         binding.tVPregunta.text = getString(pregunta)
 
-        // Habilitar o deshabilitar los botones si la pregunta actual ya fue contestada
-        val yaContestada = preguntasContestadas[indiceActual]
+        val yaContestada = preguntaViewModel.preguntasContestadas[preguntaViewModel.indiceActual]
         binding.trueButton.isEnabled = !yaContestada
         binding.falseButton.isEnabled = !yaContestada
     }
 
     private fun verificarRespuesta(rptaUsuario: Boolean) {
-        var rptaCorrecta = preguntas[indiceActual].rpta
+        val rptaCorrecta = preguntaViewModel.respuestaActual
         val esCorrecto = (rptaUsuario == rptaCorrecta)
 
-        // Marcar la pregunta como contestada y apagar los botones instantáneamente
-        preguntasContestadas[indiceActual] = true
+        // Marcar la pregunta como contestada y apagar los botones
+        preguntaViewModel.preguntasContestadas[preguntaViewModel.indiceActual] = true
         binding.trueButton.isEnabled = false
         binding.falseButton.isEnabled = false
 
-        // Sumar al puntaje si acertó
-        if (esCorrecto) {
-            puntaje += 1
+        val msgRpta = when {
+            preguntaViewModel.hizoTrampa -> R.string.toast_juicio
+            esCorrecto -> R.string.toast_correcto
+            else -> R.string.toast_incorrecto
         }
 
-        val msgRpta = if (esCorrecto) R.string.toast_correcto else R.string.toast_incorrecto
-        val colorFondo = if (esCorrecto) "#4CAF50" else "#F44336"
+        // Asignamos el color y sumamos el puntaje (solo si no hizo trampa y acertó)
+        val colorFondo: String
+        if (preguntaViewModel.hizoTrampa) {
+            colorFondo = "#FF9800" // Naranja de advertencia por tramposo
+        } else {
+            if (esCorrecto) {
+                preguntaViewModel.puntaje += 1
+            }
+            colorFondo = if (esCorrecto) "#4CAF50" else "#F44336" // Verde o Rojo
+        }
 
         val vistaPersonalizada = android.widget.TextView(this)
-        vistaPersonalizada.text = getString(msgRpta)
+        vistaPersonalizada.text = getString(msgRpta) // Aquí usamos el mensaje del 'when'
 
         val fondoCurvo = android.graphics.drawable.GradientDrawable()
         fondoCurvo.setColor(Color.parseColor(colorFondo))
@@ -111,20 +122,12 @@ class MainActivity : AppCompatActivity() {
         toast.show()
 
         // Revisar si ya contestó todas
-        if (preguntasContestadas.all { it }) {
-            val porcentaje = (puntaje * 100) / preguntas.size
+        if (preguntaViewModel.preguntasContestadas.all { it }) {
+            val porcentaje = (preguntaViewModel.puntaje * 100) / preguntaViewModel.preguntas.size
             android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
                 Toast.makeText(this, "¡Completado! Tu porcentaje de aciertos es: $porcentaje%", Toast.LENGTH_LONG).show()
             }, 1500)
         }
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        Log.i(TAG, "onSaveInstanceState() fue llamado")
-        outState.putInt(KEY_INDEX_IA, indiceActual)
-        outState.putInt(KEY_PUNTAJE, puntaje)
-        outState.putBooleanArray(KEY_CONTESTADAS, preguntasContestadas)
     }
 
     override fun onStart() {

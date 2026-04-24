@@ -12,6 +12,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Geoquiz">
         <activity
+            android:name=".clase24042026.TrampaActivity"
+            android:exported="false" />
+        <activity
             android:name=".clase2.MainActivity"
             android:exported="true">
             <intent-filter>
