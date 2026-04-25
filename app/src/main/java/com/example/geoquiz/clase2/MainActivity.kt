@@ -26,7 +26,7 @@ class MainActivity : AppCompatActivity() {
         ActivityResultContracts.StartActivityForResult()
     ) { resultado ->
         if (resultado.resultCode == Activity.RESULT_OK) {
-            preguntaViewModel.hizoTrampa = resultado.data?.getBooleanExtra(EXTRA_RPTA_MOSTRADA, false) ?: false
+            preguntaViewModel.hizoTrampaEnActual = resultado.data?.getBooleanExtra(EXTRA_RPTA_MOSTRADA, false) ?: false
         }
     }
 
@@ -87,14 +87,14 @@ class MainActivity : AppCompatActivity() {
         binding.falseButton.isEnabled = false
 
         val msgRpta = when {
-            preguntaViewModel.hizoTrampa -> R.string.toast_juicio
+            preguntaViewModel.hizoTrampaEnActual -> R.string.toast_juicio
             esCorrecto -> R.string.toast_correcto
             else -> R.string.toast_incorrecto
         }
 
         // Asignamos el color y sumamos el puntaje (solo si no hizo trampa y acertó)
         val colorFondo: String
-        if (preguntaViewModel.hizoTrampa) {
+        if (preguntaViewModel.hizoTrampaEnActual) {
             colorFondo = "#FF9800" // Naranja de advertencia por tramposo
         } else {
             if (esCorrecto) {

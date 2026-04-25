@@ -36,8 +36,8 @@ class PreguntaViewModel(private val savedStateHandle: SavedStateHandle): ViewMod
         get() = savedStateHandle.get(CLAVE_CONTESTADAS) ?: BooleanArray(6) { false }
         set(value) = savedStateHandle.set(CLAVE_CONTESTADAS, value)
 
-    var hizoTrampa: Boolean
-        get() = savedStateHandle.get(CLAVE_TRAMPA) ?: false
+    var listaTrampas: BooleanArray
+        get() = savedStateHandle.get(CLAVE_TRAMPA) ?: BooleanArray(6) { false }
         set(value) = savedStateHandle.set(CLAVE_TRAMPA, value)
 
     val respuestaActual: Boolean
@@ -62,4 +62,12 @@ class PreguntaViewModel(private val savedStateHandle: SavedStateHandle): ViewMod
         super.onCleared()
         Log.d(TAG, "Instancia del ViewModel por destruirse")
     }
+
+    var hizoTrampaEnActual: Boolean
+        get() = listaTrampas[indiceActual]
+        set(value) {
+            val nuevaLista = listaTrampas
+            nuevaLista[indiceActual] = value
+            listaTrampas = nuevaLista
+        }
 }

@@ -13,7 +13,7 @@ const val EXTRA_RPTA_MOSTRADA = "com.example.geoquiz.rpta_mostrada"
 private const val EXTRA_RPTA_CORRECTA = "com.example.geoquiz.rpta_correcta"
 
 class TrampaActivity : AppCompatActivity() {
-
+    private var hizoTrampa = false
     private lateinit var binding: ActivityTrampaBinding
     private var rptaCorrecta = false
 
@@ -31,12 +31,33 @@ class TrampaActivity : AppCompatActivity() {
             }
             binding.answerTextView.setText(textoRpta)
 
-            // 👇 2. LLAMAMOS A LA FUNCIÓN AL MOMENTO DE MOSTRAR LA RESPUESTA
+            setResultPreguntaMostrada(true)
+        }
+
+        hizoTrampa = savedInstanceState?.getBoolean("HIZO_TRAMPA", false) ?: false
+
+        // Si ya había hecho trampa, mostramos la respuesta de una vez
+        if (hizoTrampa) {
+            mostrarRespuesta()
+        }
+
+        binding.showAnswerButton.setOnClickListener {
+            hizoTrampa = true
+            mostrarRespuesta()
             setResultPreguntaMostrada(true)
         }
     }
 
-    // 👇 3. LA NUEVA FUNCIÓN DE LA DIAPOSITIVA
+    private fun mostrarRespuesta() {
+        val textoRpta = if (rptaCorrecta) R.string.boton_verdadero else R.string.botn_falso
+        binding.answerTextView.setText(textoRpta)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBoolean("HIZO_TRAMPA", hizoTrampa)
+    }
+
     private fun setResultPreguntaMostrada(fueMostrada: Boolean) {
         val data = Intent() // Creamos un Intent vacío, solo para llevar datos
         data.putExtra(EXTRA_RPTA_MOSTRADA, fueMostrada) // Metemos el "true"
