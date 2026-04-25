@@ -1,6 +1,6 @@
 package com.example.geoquiz.clase24042026
 
-import android.app.Activity // 👇 NUEVO IMPORTANTE: Para usar Activity.RESULT_OK
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -8,7 +8,6 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.geoquiz.R
 import com.example.geoquiz.databinding.ActivityTrampaBinding
 
-// 👇 1. MOVIMOS ESTA CONSTANTE ARRIBA COMO PIDE LA DIAPOSITIVA
 const val EXTRA_RPTA_MOSTRADA = "com.example.geoquiz.rpta_mostrada"
 private const val EXTRA_RPTA_CORRECTA = "com.example.geoquiz.rpta_correcta"
 
